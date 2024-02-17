@@ -10,6 +10,7 @@ import {
 import { UserService } from '../user/user.service';
 import { LocalAuthGuard } from './local.auth.guard';
 import { CreateUserDto } from '../dtos';
+import { AuthenticatedGuard } from './authenticated.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +21,7 @@ export class AuthController {
     return this.userService.createUser(dto);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard, AuthenticatedGuard)
   @Post('login')
   async login(@Request() req) {
     return req.user;

@@ -26,10 +26,17 @@ export class UserService {
     return newUser;
   }
 
-  async updateUser(dto: UpdateUserDto) {
+  async updateUser({
+    data,
+    user_id,
+  }: {
+    data: UpdateUserDto;
+    user_id: string;
+  }): Promise<IUser> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updatedUser = await this.prisma.user.update({
-      where: { id: dto.user_id },
-      data: dto,
+      where: { id: user_id },
+      data,
       select: {
         id: true,
         email: true,
@@ -69,5 +76,11 @@ export class UserService {
     });
 
     return user;
+  }
+
+  async deleteUser(userId: string) {
+    return await this.prisma.user.delete({
+      where: { id: userId },
+    });
   }
 }

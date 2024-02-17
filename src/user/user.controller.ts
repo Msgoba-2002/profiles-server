@@ -1,14 +1,19 @@
 import {
   Body,
   Controller,
+  Delete,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../dtos';
+import { CreateUserDto, UpdateUserDto } from '../dtos';
+import { AuthenticatedGuard } from '../auth/authenticated.guard';
+import { UserIsOwnerGuard } from '../auth/user.isowner.guard';
 
 @Controller('user')
 export class UserController {
@@ -20,12 +25,25 @@ export class UserController {
     return this.userService.createUser(dto);
   }
 
+  @UseGuards(AuthenticatedGuard, UserIsOwnerGuard)
   @Patch(':userId')
-  @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
+  @UsePipes(
+    new ValidationPipe({
+      skipMissingProperties: true,
+      skipNullProperties: true,
+    }),
+  )
   async updateUser(
-    @Body() dto: CreateUserDto,
+    @Body() dto: UpdateUserDto,
     @Param('userId') userId: string,
   ): Promise<any> {
-    return this.userService.updateUser({ ...dto, user_id: userId });
+    return this.userService.updateUser({ data: dto, user_id: userId });
+  }
+
+  @UseGuards(AuthenticatedGuard, UserIsOwnerGuard)
+  @Delete(':userId')
+  async deleteUser(@Param('userId') userId: string): Promise<any> {
+    await this.userService.deleteUser(userId);
+    return HttpStatus.NO_CONTENT;
   }
 }
