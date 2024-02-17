@@ -1,12 +1,13 @@
-FROM node:20.11 AS dev
+FROM --platform=linux/arm64 node:20.11 AS dev
 WORKDIR /app
 COPY package*.json ./
 
 RUN apt-get update
-RUN apt-get -y install \
+RUN apt-get install -y build-essential \
     cmake
-
+RUN apt-get install -y python3
 RUN npm ci --quiet
+
 COPY . .
 
 RUN npm run build
