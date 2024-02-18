@@ -7,12 +7,14 @@ import { LocalStrategy } from './local.strategy';
 import { AuthenticatedGuard } from './authenticated.guard';
 import { UserIsOwnerGuard } from './user.isowner.guard';
 import { SessionSerializer } from './session.serializer';
+import { GoogleStrategy } from './google.strategy';
 
 @Global()
 @Module({
   providers: [
     AuthService,
     LocalStrategy,
+    GoogleStrategy,
     SessionSerializer,
     AuthenticatedGuard,
     UserIsOwnerGuard,

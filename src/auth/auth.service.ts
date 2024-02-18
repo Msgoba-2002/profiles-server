@@ -1,6 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
+import { IUser } from '../user/userTypes';
 
 @Injectable()
 export class AuthService {
@@ -19,5 +20,13 @@ export class AuthService {
       return result;
     }
     return null;
+  }
+
+  async sendVerificationEmail(user: IUser) {
+
+  }
+
+  async verifyEmail(token: string) {
+    
   }
 }
