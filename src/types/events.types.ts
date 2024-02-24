@@ -1,4 +1,4 @@
-import { IUser } from '../user/userTypes';
+import { IUser, IUserWithoutPass } from '../user/userTypes';
 
 export class UserRegisteredEvent {
   public verificationUrl: string;
@@ -16,10 +16,14 @@ export class PasswordResetRequestEvent {
   public resetUrl: string;
 
   constructor(
-    public readonly email: string,
+    public readonly user: IUserWithoutPass,
     public resetBaseUrl: string,
     public token: string,
   ) {
     this.resetUrl = `${resetBaseUrl}/reset-password?token=${token}`;
   }
+}
+
+export class PasswordResetEvent {
+  constructor(public user: IUserWithoutPass) {}
 }

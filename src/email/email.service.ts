@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
+  PasswordResetEvent,
+  PasswordResetRequestEvent,
   // PasswordResetRequestEvent,
   UserRegisteredEvent,
 } from '../types/events.types';
@@ -53,8 +55,56 @@ export class EmailService {
     }
   }
 
-  // @OnEvent('user.reqPwReset')
-  // async sendReqPwResetEmail(payload: PasswordResetRequestEvent) {
-  //   console.log('implementation pending');
-  // }
+  @OnEvent('user.reqPwReset')
+  async sendReqPwResetEmail(payload: PasswordResetRequestEvent) {
+    const { user, resetUrl } = payload;
+
+    const msg = {
+      to: user.email,
+      from: this.sender,
+      templateId: this.reqPassResetTemplateId,
+      dynamicTemplateData: {
+        user_name: user.first_name,
+        pw_reset_url: resetUrl,
+      },
+    };
+
+    try {
+      const sentMail = await this.sendgridService.sendEmail(msg);
+      if (sentMail) {
+        console.log(
+          `Password reset request email sent successfully to ${user.first_name} ${user.last_name} at ${user.email}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  @OnEvent('user.pwReset')
+  async sendPwResetEmail(payload: PasswordResetEvent) {
+    const { user } = payload;
+
+    const msg = {
+      to: user.email,
+      from: this.sender,
+      templateId: this.passResetTemplateId,
+      dynamicTemplateData: {
+        user_name: `${user.first_name} ${user.last_name}`,
+      },
+    };
+
+    try {
+      const sentMail = await this.sendgridService.sendEmail(msg);
+      if (sentMail) {
+        console.log(
+          `Password reset email sent successfully to ${user.first_name} ${user.last_name} at ${user.email}`,
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
 }

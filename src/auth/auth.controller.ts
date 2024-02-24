@@ -4,9 +4,8 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  // Patch,
+  Patch,
   Post,
-  // Query,
   Redirect,
   Req,
   Request,
@@ -22,6 +21,11 @@ import { GoogleAuthGuard } from './google.auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import {
+  IReqPasswordReset,
+  IResetPassword,
+  IVerifyEmail,
+} from '../dtos/authDtos';
 
 @Controller('auth')
 export class AuthController {
@@ -93,25 +97,65 @@ export class AuthController {
     };
   }
 
-  // @Patch('verify-email')
-  // async verifyEmail(@Query() token: string): Promise<any> {
-  //   return await this.authService.verifyEmail(token);
-  // }
+  @Patch('verify-email')
+  async verifyEmail(@Body() dto: IVerifyEmail): Promise<any> {
+    const { token } = dto;
+    try {
+      await this.authService.verifyEmail(token);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Email verified successfully',
+      };
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 
   @Post('send-verification')
   @UseGuards(AuthenticatedGuard)
   async sendVerification(@Req() req: any): Promise<any> {
     const user = await this.userService.getUserById(req.user.id);
-    return await this.authService.sendVerificationEmail(user);
+    await this.authService.sendVerificationEmail(user);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Verification email sent',
+    };
   }
 
-  // @Post('forgot-password')
-  // async forgotPassword(): Promise<any> {
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: IReqPasswordReset): Promise<any> {
+    const { email } = dto;
+    try {
+      const user = await this.userService.getUserByEmail(email, false);
+      if (!user) {
+        return {
+          statusCode: HttpStatus.OK,
+        };
+      }
 
-  // }
+      await this.authService.sendForgotPasswordEmail(user);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Password reset email sent',
+      };
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 
-  // @Patch('update-password')
-  // async resetPassword(): Promise<any> {
+  @Patch('update-password')
+  async resetPassword(@Body() dto: IResetPassword): Promise<any> {
+    const { token, password } = dto;
 
-  // }
+    try {
+      await this.authService.updatePassword(token, password);
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Password updated successfully',
+      };
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

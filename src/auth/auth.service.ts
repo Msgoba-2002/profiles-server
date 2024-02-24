@@ -4,7 +4,11 @@ import * as bcrypt from 'bcryptjs';
 import { IUserWithoutPass } from '../user/userTypes';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { UserRegisteredEvent } from '../types/events.types';
+import {
+  PasswordResetEvent,
+  PasswordResetRequestEvent,
+  UserRegisteredEvent,
+} from '../types/events.types';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -42,10 +46,53 @@ export class AuthService {
     );
   }
 
-  getJwtSecret() {
-    return this.configService.get('JWT_SECRET');
-  }
-  // async verifyEmail(token: string) {
+  async verifyEmail(token: string) {
+    try {
+      const decoded = await this.jwtService.verifyAsync(token);
+      const user = await this.userService.getUserByEmail(decoded.email, false);
 
-  // }
+      if (user) {
+        await this.userService.updateUser({
+          data: { email_verified: true },
+          user_id: user.id,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      throw new Error('Error verifying email, please request another link');
+    }
+  }
+
+  async sendForgotPasswordEmail(user: IUserWithoutPass) {
+    const token = await this.jwtService.signAsync({ email: user.email });
+
+    this.eventEmitter.emit(
+      'user.reqPwReset',
+      new PasswordResetRequestEvent(
+        user,
+        token,
+        this.configService.get('APP_FRONTEND_URL'),
+      ),
+    );
+  }
+
+  async updatePassword(token: string, password: string) {
+    try {
+      const decoded = await this.jwtService.verifyAsync(token);
+      const user = await this.userService.getUserByEmail(decoded.email, false);
+
+      if (user) {
+        const hashedPw = await bcrypt.hash(password, 12);
+        await this.userService.updateUser({
+          data: { password: hashedPw },
+          user_id: user.id,
+        });
+
+        this.eventEmitter.emit('user.pwReset', new PasswordResetEvent(user));
+      }
+    } catch (err) {
+      console.error(err);
+      throw new Error('Error updating password, please request another link');
+    }
+  }
 }
