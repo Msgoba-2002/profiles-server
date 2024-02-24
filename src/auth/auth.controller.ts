@@ -2,14 +2,17 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpStatus,
-  Patch,
+  // Patch,
   Post,
-  Query,
+  // Query,
   Redirect,
   Req,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { LocalAuthGuard } from './local.auth.guard';
@@ -27,12 +30,25 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
   ) {}
-
   @Post('register')
+  @UsePipes(new ValidationPipe({ skipMissingProperties: true }))
   async register(@Body() dto: CreateUserDto): Promise<any> {
-    return this.userService.createUser(dto);
-
-    // Send verification email
+    try {
+      const existingUser = await this.userService.getUserByEmail(dto.email);
+      if (existingUser) {
+        throw new HttpException(
+          'User with that email already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const user = await this.userService.createUser(dto);
+      if (user) {
+        await this.authService.sendVerificationEmail(user);
+      }
+      return user;
+    } catch (err) {
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @UseGuards(LocalAuthGuard)
@@ -77,10 +93,10 @@ export class AuthController {
     };
   }
 
-  @Patch('verify-email')
-  async verifyEmail(@Query() token: string): Promise<any> {
-    return await this.authService.verifyEmail(token);
-  }
+  // @Patch('verify-email')
+  // async verifyEmail(@Query() token: string): Promise<any> {
+  //   return await this.authService.verifyEmail(token);
+  // }
 
   @Post('send-verification')
   @UseGuards(AuthenticatedGuard)
@@ -89,13 +105,13 @@ export class AuthController {
     return await this.authService.sendVerificationEmail(user);
   }
 
-  @Post('forgot-password')
-  async forgotPassword(): Promise<any> {
+  // @Post('forgot-password')
+  // async forgotPassword(): Promise<any> {
 
-  }
+  // }
 
-  @Patch('update-password')
-  async resetPassword(): Promise<any> {
+  // @Patch('update-password')
+  // async resetPassword(): Promise<any> {
 
-  }
+  // }
 }

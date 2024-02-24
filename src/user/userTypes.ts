@@ -5,3 +5,5 @@ export interface IUser {
   last_name: string;
   password?: string;
 }
+
+export type IUserWithoutPass = Omit<IUser, 'password'>;
