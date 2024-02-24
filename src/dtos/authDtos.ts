@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsString,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 import { Match } from '../decorators/match.decorator';
 
@@ -29,7 +28,6 @@ export class IResetPassword {
   @MinLength(8)
   password: string;
 
-  @ValidateIf((o) => !!o.password)
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
