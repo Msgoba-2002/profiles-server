@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Patch,
@@ -89,12 +90,10 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(AuthenticatedGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Req() req: any): Promise<any> {
     await req.session.destroy();
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'Logged out',
-    };
+    return HttpStatus.NO_CONTENT;
   }
 
   @Patch('verify-email')
@@ -113,6 +112,7 @@ export class AuthController {
 
   @Post('send-verification')
   @UseGuards(AuthenticatedGuard)
+  @HttpCode(HttpStatus.OK)
   async sendVerification(@Req() req: any): Promise<any> {
     const user = await this.userService.getUserById(req.user.id);
     await this.authService.sendVerificationEmail(user);
@@ -124,6 +124,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: IReqPasswordReset): Promise<any> {
     const { email } = dto;
     try {

@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  HttpCode,
   HttpStatus,
   Param,
   Patch,
+  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -35,7 +37,12 @@ export class UserController {
 
   @UseGuards(AuthenticatedGuard, UserIsOwnerGuard)
   @Delete(':userId')
-  async deleteUser(@Param('userId') userId: string): Promise<any> {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(
+    @Req() req: any,
+    @Param('userId') userId: string,
+  ): Promise<any> {
+    req.session.destroy();
     await this.userService.deleteUser(userId);
     return HttpStatus.NO_CONTENT;
   }
