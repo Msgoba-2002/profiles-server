@@ -17,8 +17,8 @@ export class PasswordResetRequestEvent {
 
   constructor(
     public readonly user: IUserWithoutPass,
-    public resetBaseUrl: string,
     public token: string,
+    public resetBaseUrl: string,
   ) {
     this.resetUrl = `${resetBaseUrl}/reset-password?token=${token}`;
   }

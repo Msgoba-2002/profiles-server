@@ -110,7 +110,7 @@ export class AuthController {
     }
   }
 
-  @Post('send-verification')
+  @Get('send-verification')
   @UseGuards(AuthenticatedGuard)
   @HttpCode(HttpStatus.OK)
   async sendVerification(@Req() req: any): Promise<any> {

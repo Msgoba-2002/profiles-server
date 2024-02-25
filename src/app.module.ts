@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EmailModule } from './email/email.module';
-import { SendgridModule } from './sendgrid/sendgrid.module';
+import { MailgunModule } from './mailgun/mailgun.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
     EmailModule,
-    SendgridModule,
+    MailgunModule,
   ],
   controllers: [AppController],
   providers: [AppService],

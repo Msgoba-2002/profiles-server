@@ -7,7 +7,7 @@ import {
   // PasswordResetRequestEvent,
   UserRegisteredEvent,
 } from '../types/events.types';
-import { SendgridService } from '../sendgrid/sendgrid.service';
+import { MailgunService } from '../mailgun/mailgun.service';
 
 @Injectable()
 export class EmailService {
@@ -18,9 +18,9 @@ export class EmailService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly sendgridService: SendgridService,
+    private readonly mailgunService: MailgunService,
   ) {
-    this.sender = this.configService.get('SENDGRID_SENDER_EMAIL');
+    this.sender = this.configService.get('MAILGUN_SENDER_EMAIL');
     this.verificationTemplateId = this.configService.get('VERIFY_TEMPLATE_ID');
     this.reqPassResetTemplateId = this.configService.get(
       'REQ_PW_RESET_TEMPLATE_ID',
@@ -32,18 +32,21 @@ export class EmailService {
   async sendVerificationEmail(payload: UserRegisteredEvent) {
     const { user, verificationUrl } = payload;
 
+    const dynamicTemplateData = {
+      user_name: `${user.first_name} ${user.last_name}`,
+      verify_url: verificationUrl,
+    };
+
     const msg = {
       to: user.email,
       from: this.sender,
-      templateId: this.configService.get('VERIFY_TEMPLATE_ID'),
-      dynamicTemplateData: {
-        user_name: user.first_name,
-        verify_url: verificationUrl,
-      },
+      subject: 'Please verify your email address',
+      template: this.verificationTemplateId,
+      't:variables': JSON.stringify(dynamicTemplateData),
     };
 
     try {
-      const sentMail = await this.sendgridService.sendEmail(msg);
+      const sentMail = await this.mailgunService.send(msg);
       if (sentMail) {
         console.log(
           `Verification email sent successfully to ${user.first_name} ${user.last_name} at ${user.email}`,
@@ -59,18 +62,21 @@ export class EmailService {
   async sendReqPwResetEmail(payload: PasswordResetRequestEvent) {
     const { user, resetUrl } = payload;
 
+    const dynamicTemplateData = {
+      user_name: `${user.first_name} ${user.last_name}`,
+      pw_reset_url: resetUrl,
+    };
+
     const msg = {
       to: user.email,
       from: this.sender,
-      templateId: this.reqPassResetTemplateId,
-      dynamicTemplateData: {
-        user_name: user.first_name,
-        pw_reset_url: resetUrl,
-      },
+      subject: 'Password Reset Request',
+      template: this.reqPassResetTemplateId,
+      't:variables': JSON.stringify(dynamicTemplateData),
     };
 
     try {
-      const sentMail = await this.sendgridService.sendEmail(msg);
+      const sentMail = this.mailgunService.send(msg);
       if (sentMail) {
         console.log(
           `Password reset request email sent successfully to ${user.first_name} ${user.last_name} at ${user.email}`,
@@ -86,22 +92,20 @@ export class EmailService {
   async sendPwResetEmail(payload: PasswordResetEvent) {
     const { user } = payload;
 
+    const dynamicTemplateData = {
+      user_name: `${user.first_name} ${user.last_name}`,
+    };
+
     const msg = {
       to: user.email,
       from: this.sender,
-      templateId: this.passResetTemplateId,
-      dynamicTemplateData: {
-        user_name: `${user.first_name} ${user.last_name}`,
-      },
+      template: this.passResetTemplateId,
+      subject: 'Password Reset Successful',
+      't:variables': JSON.stringify(dynamicTemplateData),
     };
 
     try {
-      const sentMail = await this.sendgridService.sendEmail(msg);
-      if (sentMail) {
-        console.log(
-          `Password reset email sent successfully to ${user.first_name} ${user.last_name} at ${user.email}`,
-        );
-      }
+      this.mailgunService.send(msg);
     } catch (err) {
       console.error(err);
       throw err;

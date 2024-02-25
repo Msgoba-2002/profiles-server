@@ -7,11 +7,15 @@ import {
 } from 'class-validator';
 
 export function Match(property: string, validationOptions?: ValidationOptions) {
+  const defaultOptions = {
+    message: `$property must match ${property}`,
+  };
+
   return (object: any, propertyName: string) => {
     registerDecorator({
       target: object.constructor,
       propertyName,
-      options: validationOptions,
+      options: { ...defaultOptions, ...validationOptions },
       constraints: [property],
       validator: MatchConstraint,
     });
