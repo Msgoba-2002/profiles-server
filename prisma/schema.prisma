@@ -11,20 +11,21 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String
-  first_name String
-  last_name  String
-  password   String
-  Profile    Profile?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id             String   @id @default(uuid())
+  email          String   @unique
+  first_name     String
+  last_name      String
+  password       String
+  Profile        Profile?
+  email_verified Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 }
 
 model Profile {
   id                 String   @id @default(uuid())
   user_id            String   @unique
-  user               User     @relation(fields: [user_id], references: [id])
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   phone_number       String   @unique
   occupation_status  String
   occupation         String
