@@ -6,9 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import * as passport from 'passport';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: 'http://localhost:3000',
       credentials: true,
@@ -48,6 +49,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
   app.setGlobalPrefix('api/v1');
+  app.set('trust proxy', true);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   await app.listen(port);
