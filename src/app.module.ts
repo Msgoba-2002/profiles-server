@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EmailModule } from './email/email.module';
 import { MailgunModule } from './mailgun/mailgun.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -19,10 +20,16 @@ import { MailgunModule } from './mailgun/mailgun.module';
       isGlobal: true,
     }),
     EventEmitterModule.forRoot({ delimiter: '.' }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60 * 1000,
+        limit: 20,
+      },
+    ]),
     EmailModule,
     MailgunModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: 'APP_GUARD', useClass: ThrottlerGuard }],
 })
 export class AppModule {}
