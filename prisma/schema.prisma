@@ -30,7 +30,7 @@ model Profile {
   occupation_status  String
   occupation         String
   place_of_work      String?
-  hobbies            String
+  hobbies            String[]
   birthday           DateTime
   marital_status     String
   nickname           String?

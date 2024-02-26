@@ -9,9 +9,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EmailModule } from './email/email.module';
 import { MailgunModule } from './mailgun/mailgun.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { S3StorageModule } from './s3-storage/s3-storage.module';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { StorageModule } from './storage/storage.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -31,9 +31,9 @@ import { StorageModule } from './storage/storage.module';
     ]),
     EmailModule,
     MailgunModule,
-    S3StorageModule,
     AwsS3Module,
     StorageModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: 'APP_GUARD', useClass: ThrottlerGuard }],
