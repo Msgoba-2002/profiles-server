@@ -65,7 +65,7 @@ export class AwsS3Service {
     }
   }
 
-  public async awsGetSignedUrl(objPath: string): Promise<any> {
+  public async awsGetSignedDownUrl(objPath: string): Promise<any> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: this.getObjectKey(objPath),
@@ -75,5 +75,20 @@ export class AwsS3Service {
       expiresIn: 3600,
     });
     return response;
+  }
+
+  public async awsGetSignedUpUrl(
+    key: string,
+    contentType: string,
+  ): Promise<any> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      ContentType: contentType,
+    });
+
+    return getSignedUrl(this.awsS3Client, command, {
+      expiresIn: 600,
+    });
   }
 }

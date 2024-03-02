@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AwsS3Service } from '../aws-s3/aws-s3.service';
 import { ConfigService } from '@nestjs/config';
+import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class StorageService {
@@ -28,13 +29,19 @@ export class StorageService {
     }
   }
 
-  public async getSignedUrl(path: string) {
+  public async getSignedDownloadUrl(path: string) {
     try {
-      const url = await this.s3Service.awsGetSignedUrl(path);
+      const url = await this.s3Service.awsGetSignedDownUrl(path);
       return url;
     } catch (err) {
       console.error(err);
       throw err;
     }
+  }
+
+  public async getSignedUploadUrl(contentType: string) {
+    const key = uuidV4();
+    const url = await this.s3Service.awsGetSignedUpUrl(key, contentType);
+    return { url };
   }
 }
