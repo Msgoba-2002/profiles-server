@@ -21,6 +21,8 @@ export class UserService {
         first_name: true,
         last_name: true,
         created_at: true,
+        email_verified: true,
+        questions_verified: true,
       },
     });
     return newUser;
@@ -43,6 +45,8 @@ export class UserService {
         first_name: true,
         last_name: true,
         created_at: true,
+        email_verified: true,
+        questions_verified: true,
       },
     });
 
@@ -57,6 +61,8 @@ export class UserService {
         email: true,
         first_name: true,
         last_name: true,
+        email_verified: true,
+        questions_verified: true,
       },
     });
 
@@ -72,6 +78,8 @@ export class UserService {
         first_name: true,
         last_name: true,
         password: getPw,
+        email_verified: true,
+        questions_verified: true,
       },
     });
 
@@ -82,5 +90,21 @@ export class UserService {
     return await this.prisma.user.delete({
       where: { id: userId },
     });
+  }
+
+  async getUserPosition(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        Profile: {
+          select: {
+            id: true,
+            current_position: true,
+          },
+        },
+      },
+    });
+
+    return user?.Profile?.current_position;
   }
 }

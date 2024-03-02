@@ -9,6 +9,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { EmailModule } from './email/email.module';
 import { MailgunModule } from './mailgun/mailgun.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AwsS3Module } from './aws-s3/aws-s3.module';
+import { StorageModule } from './storage/storage.module';
+import { ProfileModule } from './profile/profile.module';
+import { QuestionsModule } from './questions/questions.module';
 
 @Module({
   imports: [
@@ -28,6 +32,10 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     ]),
     EmailModule,
     MailgunModule,
+    AwsS3Module,
+    StorageModule,
+    ProfileModule,
+    QuestionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: 'APP_GUARD', useClass: ThrottlerGuard }],

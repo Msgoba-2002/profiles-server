@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  first_name     String
-  last_name      String
-  password       String
-  Profile        Profile?
-  email_verified Boolean  @default(false)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  first_name         String
+  last_name          String
+  password           String
+  Profile            Profile?
+  email_verified     Boolean  @default(false)
+  questions_verified Boolean  @default(false)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
 }
 
 model Profile {
@@ -30,7 +31,7 @@ model Profile {
   occupation_status  String
   occupation         String
   place_of_work      String?
-  hobbies            String
+  hobbies            String[]
   birthday           DateTime
   marital_status     String
   nickname           String?
@@ -41,4 +42,11 @@ model Profile {
   place_of_residence String
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
+}
+
+model Question {
+  id             String   @id @default(uuid())
+  question       String
+  options        String[]
+  correct_option Int
 }
