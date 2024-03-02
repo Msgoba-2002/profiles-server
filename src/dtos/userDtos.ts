@@ -36,6 +36,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   @Match('password')
   confirm_password?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  questions_verified?: boolean;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {

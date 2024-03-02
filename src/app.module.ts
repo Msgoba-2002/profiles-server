@@ -12,6 +12,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { StorageModule } from './storage/storage.module';
 import { ProfileModule } from './profile/profile.module';
+import { QuestionsModule } from './questions/questions.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ProfileModule } from './profile/profile.module';
     AwsS3Module,
     StorageModule,
     ProfileModule,
+    QuestionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: 'APP_GUARD', useClass: ThrottlerGuard }],

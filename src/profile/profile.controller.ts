@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseFilePipeBuilder,
@@ -26,6 +27,7 @@ export class ProfileController {
 
   @Post()
   @UseInterceptors(FileInterceptor('profile_picture'))
+  @HttpCode(HttpStatus.CREATED)
   async createProfile(
     @Body() dto: CreateProfileDto,
     @UploadedFile(
