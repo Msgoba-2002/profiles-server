@@ -55,7 +55,8 @@ export class CreateProfileDto {
   bio: string;
 
   @IsOptional()
-  profile_picture?: Express.Multer.File;
+  @IsString()
+  profile_picture?: string;
 
   @IsString()
   @IsNotEmpty()

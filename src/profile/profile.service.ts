@@ -16,27 +16,16 @@ export class ProfileService {
         user_id: userId,
       },
     });
-    return profile;
+    const profilePicUrl = await this.storageService.getSignedDownloadUrl(
+      profile.profile_picture,
+    );
+    return { ...profile, profile_picture: profilePicUrl };
   }
 
   async createProfile(userId: string, dto: CreateProfileDto) {
-    let profilePicPath: string;
-
-    if (dto.profile_picture) {
-      try {
-        const uploadFilePath = await this.storageService.upload(
-          dto.profile_picture,
-        );
-        profilePicPath = uploadFilePath;
-      } catch (err) {
-        throw new Error('Failed to upload profile picture');
-      }
-    }
-
     const profile = await this.prisma.profile.create({
       data: {
         ...dto,
-        profile_picture: profilePicPath,
         user: {
           connect: {
             id: userId,

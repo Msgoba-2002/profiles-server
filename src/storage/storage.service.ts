@@ -30,6 +30,7 @@ export class StorageService {
   }
 
   public async getSignedDownloadUrl(path: string) {
+    if (!path) return null;
     try {
       const url = await this.s3Service.awsGetSignedDownUrl(path);
       return url;
