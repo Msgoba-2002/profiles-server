@@ -72,9 +72,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @Redirect()
-  async googleLoginRedirect(): Promise<any> {
+  async googleLoginRedirect(@Request() req): Promise<any> {
     return {
-      url: this.configService.get('APP_FRONTEND_URL') + 'login/success',
+      url: this.configService.get('APP_FRONTEND_URL') + '/user/' + req.user.id,
       statusCode: 301,
     };
   }
