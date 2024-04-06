@@ -17,10 +17,17 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const redisClient = new Redis({
-    host: configService.get('REDIS_HOST'),
-    port: configService.get('REDIS_PORT'),
-  });
+  const redisUrl = configService.get('REDIS_URL');
+  let redisConfig;
+  if (redisUrl) {
+    redisConfig = redisUrl;
+  } else {
+    redisConfig = {
+      host: configService.get('REDIS_HOST'),
+      port: configService.get('REDIS_PORT'),
+    };
+  }
+  const redisClient = new Redis(redisConfig);
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const RedisStore = require('connect-redis').default;
