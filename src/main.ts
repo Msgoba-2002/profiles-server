@@ -9,14 +9,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: {
-      origin: 'http://localhost:3000',
-      credentials: true,
-    },
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
+  app.enableCors({
+    origin: configService.get('APP_FRONTEND_URL'),
+    credentials: true,
+  });
 
   const redisClient = new Redis({
     host: configService.get('REDIS_HOST'),
