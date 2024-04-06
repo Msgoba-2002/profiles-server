@@ -4,20 +4,31 @@ import { CreateUserDto, UpdateUserDto } from '../dtos';
 import { IUser, IUserWithoutPass } from './userTypes';
 import * as bcrypt from 'bcryptjs';
 import { StorageService } from '../storage/storage.service';
+import { v4 as uuidv4 } from 'uuid';
+import { CreateUserObject } from '../types/user';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService, private readonly storage: StorageService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   async createUser(dto: CreateUserDto): Promise<IUserWithoutPass> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, confirm_password, ...rest } = dto;
-    const hashedPw = await bcrypt.hash(password, 12);
-    const newUser = await this.prisma.user.create({
-      data: {
+    let userCreationData = {};
+    if (dto.password && dto.confirm_password) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, confirm_password, ...rest } = dto;
+      const hashedPw = await bcrypt.hash(password, 12);
+      userCreationData = {
         ...rest,
         password: hashedPw,
-      },
+      };
+    } else {
+      userCreationData = { ...dto, password: uuidv4() };
+    }
+    const newUser = await this.prisma.user.create({
+      data: userCreationData as CreateUserObject,
       select: {
         id: true,
         email: true,
