@@ -3,16 +3,19 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from '../dtos';
 import { IUser, IUserWithoutPass } from './userTypes';
 import * as bcrypt from 'bcryptjs';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly storage: StorageService) {}
 
   async createUser(dto: CreateUserDto): Promise<IUserWithoutPass> {
-    const hashedPw = await bcrypt.hash(dto.password, 12);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, confirm_password, ...rest } = dto;
+    const hashedPw = await bcrypt.hash(password, 12);
     const newUser = await this.prisma.user.create({
       data: {
-        ...dto,
+        ...rest,
         password: hashedPw,
       },
       select: {
@@ -63,13 +66,23 @@ export class UserService {
         last_name: true,
         email_verified: true,
         questions_verified: true,
+        Profile: true,
       },
     });
 
+    if (user.Profile && user.Profile.profile_picture) {
+      user.Profile.profile_picture = await this.storage.getSignedDownloadUrl(
+        user.Profile.profile_picture,
+      );
+    }
     return user;
   }
 
-  async getUserByEmail(email: string, getPw: boolean = false): Promise<IUser> {
+  async getUserByEmail(
+    email: string,
+    getPw: boolean = false,
+    getPwReset = false,
+  ): Promise<IUser> {
     const user = await this.prisma.user.findFirst({
       where: { email },
       select: {
@@ -80,6 +93,7 @@ export class UserService {
         password: getPw,
         email_verified: true,
         questions_verified: true,
+        pw_reset_token: getPwReset,
       },
     });
 

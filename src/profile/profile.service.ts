@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProfileDto } from '../dtos/profile.dtos';
+import { CreateProfileDto, UpdateProfileDto } from '../dtos/profile.dtos';
 import { StorageService } from '../storage/storage.service';
 
 @Injectable()
@@ -16,10 +16,17 @@ export class ProfileService {
         user_id: userId,
       },
     });
-    const profilePicUrl = await this.storageService.getSignedDownloadUrl(
-      profile.profile_picture,
-    );
-    return { ...profile, profile_picture: profilePicUrl };
+    if (profile.profile_picture) {
+      if (profile.profile_picture.includes('http')) {
+        return profile;
+      } else {
+        const profilePicUrl = await this.storageService.getSignedDownloadUrl(
+          profile.profile_picture,
+        );
+        return { ...profile, profile_picture: profilePicUrl };
+      }
+    }
+    return profile;
   }
 
   async createProfile(userId: string, dto: CreateProfileDto) {
@@ -34,5 +41,16 @@ export class ProfileService {
       },
     });
     return profile;
+  }
+
+  async updateProfile(profileId: string, dto: UpdateProfileDto) {
+    const updatedProfile = await this.prisma.profile.update({
+      where: {
+        id: profileId,
+      },
+      data: dto,
+    });
+
+    return updatedProfile;
   }
 }

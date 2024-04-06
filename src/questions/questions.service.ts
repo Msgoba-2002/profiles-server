@@ -55,16 +55,31 @@ export class QuestionsService {
         correct_option: true,
       },
     });
-
+    console.log({ questions });
     let score = 0;
-    const { answers } = dto;
+    const { answers, userId } = dto;
     answers.forEach((answer) => {
       const question = questions.find((ques) => ques.id === answer.question_id);
       if (question.correct_option === answer.provided_answer) {
         score++;
       }
     });
+    console.log(score, questions.length, score / questions.length);
+    if (score / questions.length >= 0.66) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { questions_verified: true },
+      });
 
-    return { score, total: questions.length };
+      return {
+        message: 'Congratulations! You have passed the test.',
+        success: true,
+      };
+    }
+
+    return {
+      message: 'Sorry! You have failed the test.',
+      success: false,
+    };
   }
 }

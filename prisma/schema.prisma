@@ -21,6 +21,7 @@ model User {
   questions_verified Boolean  @default(false)
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
+  pw_reset_token     String?
 }
 
 model Profile {
@@ -49,4 +50,12 @@ model Question {
   question       String
   options        String[]
   correct_option Int
+}
+
+model Proto_Profile {
+  id                 String   @id @default(uuid())
+  date_of_birth      DateTime
+  phone_number       String
+  email              String   @unique
+  nickname           String?
 }

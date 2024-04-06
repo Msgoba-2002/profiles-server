@@ -13,6 +13,7 @@ import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { StorageModule } from './storage/storage.module';
 import { ProfileModule } from './profile/profile.module';
 import { QuestionsModule } from './questions/questions.module';
+import { ProtoProfileModule } from './proto-profile/proto-profile.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { QuestionsModule } from './questions/questions.module';
     StorageModule,
     ProfileModule,
     QuestionsModule,
+    ProtoProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: 'APP_GUARD', useClass: ThrottlerGuard }],

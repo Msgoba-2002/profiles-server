@@ -5,11 +5,17 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { CreateProfileDto } from '../dtos/profile.dtos';
+import { CreateProfileDto, UpdateProfileDto } from '../dtos/profile.dtos';
+import { AuthenticatedGuard } from '../auth/authenticated.guard';
+import { UserIsOwnerGuard } from '../auth/user.isowner.guard';
 
 @Controller('profile')
 export class ProfileController {
@@ -31,5 +37,21 @@ export class ProfileController {
     return this.profileService.createProfile(userId, {
       ...dto,
     });
+  }
+
+  @UseGuards(AuthenticatedGuard, UserIsOwnerGuard)
+  @Patch(':userId/:profileId')
+  @UsePipes(
+    new ValidationPipe({
+      skipMissingProperties: true,
+      skipNullProperties: true,
+    }),
+  )
+  @HttpCode(HttpStatus.OK)
+  async updateProfile(
+    @Body() dto: UpdateProfileDto,
+    @Param('profileId') profileId: string,
+  ): Promise<any> {
+    return this.profileService.updateProfile(profileId, dto);
   }
 }

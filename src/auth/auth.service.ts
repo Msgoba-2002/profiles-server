@@ -66,6 +66,11 @@ export class AuthService {
   async sendForgotPasswordEmail(user: IUserWithoutPass) {
     const token = await this.jwtService.signAsync({ email: user.email });
 
+    await this.userService.updateUser({
+      data: { pw_reset_token: token },
+      user_id: user.id,
+    });
+
     this.eventEmitter.emit(
       'user.reqPwReset',
       new PasswordResetRequestEvent(
@@ -79,12 +84,19 @@ export class AuthService {
   async updatePassword(token: string, password: string) {
     try {
       const decoded = await this.jwtService.verifyAsync(token);
-      const user = await this.userService.getUserByEmail(decoded.email, false);
+      const user = await this.userService.getUserByEmail(
+        decoded.email,
+        false,
+        true,
+      );
 
       if (user) {
+        if (user.pw_reset_token !== token) {
+          throw new Error('Invalid token');
+        }
         const hashedPw = await bcrypt.hash(password, 12);
         await this.userService.updateUser({
-          data: { password: hashedPw },
+          data: { password: hashedPw, pw_reset_token: null },
           user_id: user.id,
         });
 

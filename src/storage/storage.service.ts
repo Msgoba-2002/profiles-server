@@ -41,7 +41,9 @@ export class StorageService {
   }
 
   public async getSignedUploadUrl(contentType: string) {
-    const key = uuidV4();
+    const fileExtension = contentType.split('/')[1];
+    const profilePicsFolder = this.configService.get('AWS_PROFILE_PIC_FOLDER');
+    const key = `${profilePicsFolder}/${uuidV4()}.${fileExtension}`;
     const url = await this.s3Service.awsGetSignedUpUrl(key, contentType);
     return { url };
   }

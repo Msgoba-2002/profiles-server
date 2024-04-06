@@ -88,7 +88,7 @@ export class AwsS3Service {
     });
 
     return getSignedUrl(this.awsS3Client, command, {
-      expiresIn: 600,
+      expiresIn: 1800,
     });
   }
 }
