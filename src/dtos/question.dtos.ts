@@ -39,4 +39,8 @@ export class CheckAnswerDto {
   @IsArray()
   @IsNotEmpty()
   answers: AnswerDto[];
+
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
 }

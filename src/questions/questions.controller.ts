@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
@@ -52,7 +53,8 @@ export class QuestionsController {
 
   @Post('answers')
   @HttpCode(HttpStatus.OK)
-  async checkAnswers(@Body() dto: AnswerDto[]): Promise<any> {
-    return this.questionsService.checkAnswers({ answers: dto });
+  async checkAnswers(@Body() dto: AnswerDto[], @Request() req): Promise<any> {
+    const userId = req.user.id;
+    return this.questionsService.checkAnswers({ answers: dto, userId });
   }
 }

@@ -46,4 +46,8 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsBoolean()
   email_verified?: boolean;
+
+  @IsOptional()
+  @IsString()
+  pw_reset_token?: string;
 }

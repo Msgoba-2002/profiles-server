@@ -1,22 +1,25 @@
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsArray,
-  IsDate,
+  IsDateString,
   IsNotEmpty,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   MaxLength,
+  MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateProfileDto {
   @IsString()
-  @IsPhoneNumber()
+  @MinLength(11)
   phone_number: string;
 
   @IsString()
   @IsNotEmpty()
   occupation_status: string;
 
+  @ValidateIf((o) => o.occupation_status !== 'Unemployed')
   @IsString()
   @IsNotEmpty()
   occupation: string;
@@ -30,7 +33,7 @@ export class CreateProfileDto {
   @MaxLength(20, { each: true })
   hobbies: string[];
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   birthday: Date;
 
@@ -62,3 +65,5 @@ export class CreateProfileDto {
   @IsNotEmpty()
   place_of_residence: string;
 }
+
+export class UpdateProfileDto extends PartialType(CreateProfileDto) {}
