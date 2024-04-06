@@ -31,6 +31,9 @@ RUN npx prisma migrate deploy
 FROM migrate as production
 ARG DATABASE_URL
 
+RUN npm run build
+RUN npx prisma generate
+
 EXPOSE 80
 
 CMD ["npm", "run", "start:prod"]
