@@ -49,7 +49,6 @@ export class UserService {
     data: UpdateUserDto;
     user_id: string;
   }): Promise<IUser> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updatedUser = await this.prisma.user.update({
       where: { id: user_id },
       data,

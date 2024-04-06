@@ -50,7 +50,7 @@ async function bootstrap() {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
         httpOnly: true,
         secure: inProd,
-        sameSite: 'lax',
+        sameSite: inProd ? 'none' : 'lax',
       },
     }),
   );
