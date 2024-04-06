@@ -38,8 +38,8 @@ async function bootstrap() {
   });
 
   const sessionSecret = configService.get('SESSION_SECRET');
-  const port = configService.get('PORT') || 3000;
-
+  const port = configService.get('PORT') || 8080;
+  const inProd = !configService.get('APP_FRONTEND_URL').includes('localhost');
   app.use(
     session({
       store: redisStore,
@@ -48,6 +48,9 @@ async function bootstrap() {
       secret: sessionSecret,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true,
+        secure: inProd,
+        sameSite: 'lax',
       },
     }),
   );

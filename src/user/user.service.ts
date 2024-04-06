@@ -25,7 +25,7 @@ export class UserService {
         password: hashedPw,
       };
     } else {
-      userCreationData = { ...dto, password: uuidv4() };
+      userCreationData = { ...dto, password: uuidv4(), email_verified: true };
     }
     const newUser = await this.prisma.user.create({
       data: userCreationData as CreateUserObject,
@@ -81,7 +81,7 @@ export class UserService {
       },
     });
 
-    if (user.Profile && user.Profile.profile_picture) {
+    if (user && user.Profile && user.Profile.profile_picture) {
       user.Profile.profile_picture = await this.storage.getSignedDownloadUrl(
         user.Profile.profile_picture,
       );
