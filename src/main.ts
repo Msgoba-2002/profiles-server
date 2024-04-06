@@ -38,7 +38,7 @@ async function bootstrap() {
   });
 
   const sessionSecret = configService.get('SESSION_SECRET');
-  const port = configService.get('SERVER_PORT') || 3000;
+  const port = configService.get('PORT') || 3000;
 
   app.use(
     session({
