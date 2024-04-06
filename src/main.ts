@@ -38,7 +38,7 @@ async function bootstrap() {
   });
 
   const sessionSecret = configService.get('SESSION_SECRET');
-  const port = configService.get('SERVER_PORT');
+  const port = configService.get('SERVER_PORT') || 3000;
 
   app.use(
     session({
@@ -58,6 +58,6 @@ async function bootstrap() {
   app.set('trust proxy', true);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();
