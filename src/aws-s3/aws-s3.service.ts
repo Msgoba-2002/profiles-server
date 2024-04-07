@@ -39,7 +39,7 @@ export class AwsS3Service {
   public async awsDelete(objPath: string): Promise<any> {
     const objKey = this.getObjectKey(objPath);
     const command = new DeleteObjectCommand({
-      Bucket: this.configService.get<string>(this.bucketName),
+      Bucket: this.bucketName,
       Key: objKey,
     });
 
