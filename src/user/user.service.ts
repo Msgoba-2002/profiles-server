@@ -16,16 +16,18 @@ export class UserService {
 
   async createUser(dto: CreateUserDto): Promise<IUserWithoutPass> {
     let userCreationData = {};
-    if (dto.password && dto.confirm_password) {
+    if (dto.source === 'email') {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, confirm_password, ...rest } = dto;
+      const { source, password, confirm_password, ...rest } = dto;
       const hashedPw = await bcrypt.hash(password, 12);
       userCreationData = {
         ...rest,
         password: hashedPw,
       };
-    } else {
-      userCreationData = { ...dto, password: uuidv4(), email_verified: true };
+    } else if (dto.source === 'google') {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { source, ...rest } = dto;
+      userCreationData = { ...rest, password: uuidv4(), email_verified: true };
     }
     const newUser = await this.prisma.user.create({
       data: userCreationData as CreateUserObject,

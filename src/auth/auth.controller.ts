@@ -46,7 +46,10 @@ export class AuthController {
           HttpStatus.BAD_REQUEST,
         );
       }
-      const user = await this.userService.createUser(dto);
+      const user = await this.userService.createUser({
+        ...dto,
+        source: 'email',
+      });
       if (user) {
         await this.authService.sendVerificationEmail(user);
       }
