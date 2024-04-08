@@ -37,6 +37,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       email: emails[0].value,
       first_name: name.givenName,
       last_name: name.familyName,
+      source: 'google',
     };
 
     let user = await this.userService.getUserByEmail(userFields.email);

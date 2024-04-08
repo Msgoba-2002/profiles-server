@@ -40,6 +40,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   questions_verified?: boolean;
+
+  @IsOptional()
+  @IsString()
+  source: 'google' | 'email';
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
