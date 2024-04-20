@@ -55,7 +55,6 @@ export class QuestionsService {
         correct_option: true,
       },
     });
-    console.log({ questions });
     let score = 0;
     const { answers, userId } = dto;
     answers.forEach((answer) => {
@@ -64,8 +63,8 @@ export class QuestionsService {
         score++;
       }
     });
-    console.log(score, questions.length, score / questions.length);
-    if (score / questions.length >= 0.66) {
+
+    if (score === questions.length) {
       await this.prisma.user.update({
         where: { id: userId },
         data: { questions_verified: true },
