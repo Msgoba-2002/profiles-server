@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UsePipes,
@@ -16,15 +17,17 @@ import { ProfileService } from './profile.service';
 import { CreateProfileDto, UpdateProfileDto } from '../dtos/profile.dtos';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
 import { UserIsOwnerGuard } from '../auth/user.isowner.guard';
+import { use } from 'passport';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Get(':userId')
+  @UseGuards(AuthenticatedGuard)
+  @Get(':profileId')
   async getProfile(@Param() params: Record<string, string>): Promise<any> {
-    const userId = params.userId;
-    return this.profileService.getUserProfile(userId);
+    const profileId = params.profileId;
+    return this.profileService.getUserProfile(profileId);
   }
 
   @Post()
@@ -53,5 +56,16 @@ export class ProfileController {
     @Param('profileId') profileId: string,
   ): Promise<any> {
     return this.profileService.updateProfile(profileId, dto);
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getRandomProfiles(
+    @Query('count') count: string,
+    @Req() req: any,
+  ): Promise<any> {
+    const userId = req.user.id;
+    return this.profileService.getRandomProfiles(+count, userId);
   }
 }
