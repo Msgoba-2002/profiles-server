@@ -10,10 +10,33 @@ export class ProfileService {
     private readonly storageService: StorageService,
   ) {}
 
-  async getUserProfile(userId: string) {
+  async getUserProfile(profileId: string) {
     const profile = await this.prisma.profile.findUnique({
       where: {
-        user_id: userId,
+        id: profileId,
+      },
+      select: {
+        id: true,
+        nickname: true,
+        profile_picture: true,
+        occupation_status: true,
+        occupation: true,
+        place_of_work: true,
+        hobbies: true,
+        birthday: true,
+        marital_status: true,
+        final_class: true,
+        // current_position: true,
+        bio: true,
+        place_of_residence: true,
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+          },
+        },
       },
     });
     if (profile.profile_picture) {
@@ -52,5 +75,61 @@ export class ProfileService {
     });
 
     return updatedProfile;
+  }
+
+  async getRandomProfiles(count: number, userId: string) {
+    const allUsersWithProfiles = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        Profile: {
+          select: {
+            id: true,
+            nickname: true,
+            profile_picture: true,
+          },
+        },
+      },
+      where: {
+        Profile: { isNot: null },
+        id: { not: userId },
+      },
+    });
+
+    let usersToParse = allUsersWithProfiles;
+    if (count < allUsersWithProfiles.length) {
+      // Pick random users from the list
+      const indexesToPick = [];
+      while (indexesToPick.length < count) {
+        const randomIndex = Math.floor(
+          Math.random() * allUsersWithProfiles.length,
+        );
+        if (!indexesToPick.includes(randomIndex)) {
+          indexesToPick.push(randomIndex);
+        }
+      }
+
+      usersToParse = indexesToPick.map((index) => allUsersWithProfiles[index]);
+    }
+
+    const profilesWithSignedUrls = await Promise.all(
+      usersToParse.map(async (user) => {
+        if (user.Profile.profile_picture) {
+          if (user.Profile.profile_picture.includes('http')) {
+            return user;
+          } else {
+            const profilePicUrl =
+              await this.storageService.getSignedDownloadUrl(
+                user.Profile.profile_picture,
+              );
+            user.Profile.profile_picture = profilePicUrl;
+            return user;
+          }
+        }
+      }),
+    );
+
+    return { profiles: profilesWithSignedUrls };
   }
 }
